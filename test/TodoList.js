@@ -96,4 +96,24 @@ describe("TodoList", function () {
       "InvalidTaskIndex",
     );
   });
+
+  it("updates task text in-place", async function () {
+    const { todoList } = await deployTodoListFixture();
+
+    await todoList.addTask("Original");
+    await todoList.updateTaskText(0, "Updated");
+
+    const [text, completed] = await todoList.getMyTask(0);
+    expect(text).to.equal("Updated");
+    expect(completed).to.equal(false);
+  });
+
+  it("reverts when updating text with invalid payload", async function () {
+    const { todoList } = await deployTodoListFixture();
+    const longText = "a".repeat(281);
+
+    await todoList.addTask("Task");
+    await expectCustomError(todoList.updateTaskText(0, ""), todoList, "EmptyTaskText");
+    await expectCustomError(todoList.updateTaskText(0, longText), todoList, "TaskTextTooLong");
+  });
 });
