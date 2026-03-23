@@ -2,6 +2,9 @@
 pragma solidity ^0.8.24;
 
 contract TodoList {
+    error EmptyTaskText();
+    error InvalidTaskIndex();
+
     struct Task {
         string text;
         bool completed;
@@ -15,7 +18,9 @@ contract TodoList {
     event TaskDeleted(address indexed user, uint256 indexed taskIndex);
 
     function addTask(string calldata _text) external {
-        require(bytes(_text).length > 0, "Task text cannot be empty");
+        if (bytes(_text).length == 0) {
+            revert EmptyTaskText();
+        }
 
         userTasks[msg.sender].push(Task({text: _text, completed: false}));
 
@@ -24,7 +29,9 @@ contract TodoList {
     }
 
     function toggleTaskComplete(uint256 _taskIndex) external {
-        require(_taskIndex < userTasks[msg.sender].length, "Invalid task index");
+        if (_taskIndex >= userTasks[msg.sender].length) {
+            revert InvalidTaskIndex();
+        }
 
         Task storage task = userTasks[msg.sender][_taskIndex];
         task.completed = !task.completed;
@@ -34,7 +41,9 @@ contract TodoList {
 
     function deleteTask(uint256 _taskIndex) external {
         uint256 length = userTasks[msg.sender].length;
-        require(_taskIndex < length, "Invalid task index");
+        if (_taskIndex >= length) {
+            revert InvalidTaskIndex();
+        }
 
         // Move all tasks one step left to keep ordering simple.
         for (uint256 i = _taskIndex; i < length - 1; i++) {
@@ -46,7 +55,9 @@ contract TodoList {
     }
 
     function getMyTask(uint256 _taskIndex) external view returns (string memory text, bool completed) {
-        require(_taskIndex < userTasks[msg.sender].length, "Invalid task index");
+        if (_taskIndex >= userTasks[msg.sender].length) {
+            revert InvalidTaskIndex();
+        }
 
         Task storage task = userTasks[msg.sender][_taskIndex];
         return (task.text, task.completed);
