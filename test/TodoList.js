@@ -2,6 +2,22 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("TodoList", function () {
+  async function expectCustomError(promise, contract, customErrorName) {
+    try {
+      await promise;
+      expect.fail(`Expected custom error ${customErrorName}`);
+    } catch (error) {
+      const revertData = error.data || error?.error?.data;
+      expect(
+        revertData,
+        "Missing revert data for custom error decoding",
+      ).to.be.a("string");
+
+      const parsedError = contract.interface.parseError(revertData);
+      expect(parsedError?.name).to.equal(customErrorName);
+    }
+  }
+
   async function deployTodoListFixture() {
     const [owner, otherUser] = await ethers.getSigners();
     const TodoList = await ethers.getContractFactory("TodoList");
@@ -57,5 +73,27 @@ describe("TodoList", function () {
 
     expect(ownerText).to.equal("Owner task");
     expect(otherUserText).to.equal("Other user task");
+  });
+
+  it("reverts on invalid input and indexes", async function () {
+    const { todoList } = await deployTodoListFixture();
+
+    // Validate all common guard checks that should fail fast.
+    await expectCustomError(todoList.addTask(""), todoList, "EmptyTaskText");
+    await expectCustomError(
+      todoList.toggleTaskComplete(0),
+      todoList,
+      "InvalidTaskIndex",
+    );
+    await expectCustomError(
+      todoList.deleteTask(0),
+      todoList,
+      "InvalidTaskIndex",
+    );
+    await expectCustomError(
+      todoList.getMyTask(0),
+      todoList,
+      "InvalidTaskIndex",
+    );
   });
 });
