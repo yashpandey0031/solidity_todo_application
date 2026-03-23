@@ -46,6 +46,20 @@ contract TodoList {
         emit TaskUpdated(msg.sender, _taskIndex, task.completed);
     }
 
+    function updateTaskText(uint256 _taskIndex, string calldata _newText) external {
+        if (_taskIndex >= userTasks[msg.sender].length) {
+            revert InvalidTaskIndex();
+        }
+        if (bytes(_newText).length == 0) {
+            revert EmptyTaskText();
+        }
+        if (bytes(_newText).length > MAX_TASK_TEXT_LENGTH) {
+            revert TaskTextTooLong();
+        }
+
+        userTasks[msg.sender][_taskIndex].text = _newText;
+    }
+
     function deleteTask(uint256 _taskIndex) external {
         uint256 length = userTasks[msg.sender].length;
         if (_taskIndex >= length) {
