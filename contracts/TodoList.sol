@@ -68,9 +68,9 @@ contract TodoList {
             revert InvalidTaskIndex();
         }
 
-        // Move all tasks one step left to keep ordering simple.
-        for (uint256 i = _taskIndex; i < length - 1; i++) {
-            userTasks[msg.sender][i] = userTasks[msg.sender][i + 1];
+        // Swap with last element to avoid O(n) shifting on deletion.
+        if (_taskIndex != length - 1) {
+            userTasks[msg.sender][_taskIndex] = userTasks[msg.sender][length - 1];
         }
 
         userTasks[msg.sender].pop();
