@@ -14,10 +14,12 @@ You can add tasks, mark them complete, and delete them. Tasks are stored per use
 ## Features
 
 - Add task
+- Update task text
 - Toggle complete or incomplete
 - Delete task
 - Read one task or all tasks
 - Separate todo list for each user address
+- Input validation with custom errors
 
 ## Tech Stack
 
@@ -98,11 +100,29 @@ Storage:
 Main functions:
 
 - `addTask(string _text)`
+- `updateTaskText(uint256 _taskIndex, string _newText)`
 - `toggleTaskComplete(uint256 _taskIndex)`
 - `deleteTask(uint256 _taskIndex)`
 - `getMyTask(uint256 _taskIndex)`
 - `getMyTaskCount()`
 - `getMyTasks()`
+
+Events:
+
+- `TaskAdded(address user, uint256 taskIndex, string text)`
+- `TaskUpdated(address user, uint256 taskIndex, bool completed)`
+- `TaskTextUpdated(address user, uint256 taskIndex, string text)`
+- `TaskDeleted(address user, uint256 taskIndex)`
+
+Custom errors:
+
+- `EmptyTaskText()`
+- `TaskTextTooLong()`
+- `InvalidTaskIndex()`
+
+Constraints:
+
+- Max task text length is `280` bytes (`MAX_TASK_TEXT_LENGTH`).
 
 ## Testing Notes
 
@@ -116,8 +136,24 @@ Tests include:
 ## Security and Limitations
 
 - This is an educational contract, not production-audited.
-- Deleting a task shifts array entries to keep order, which costs more gas as list size grows.
+- Deleting a task uses swap-and-pop for lower gas usage. This does not preserve task ordering.
 - No role system or advanced access control is required because each user can only modify their own tasks via `msg.sender`.
+
+## Local Network Usage
+
+Use a persistent local network when testing scripts manually across terminals:
+
+1. Start node:
+
+```powershell
+npm run node
+```
+
+2. In another terminal, run demo on localhost:
+
+```powershell
+npx hardhat run scripts/demo.js --network localhost
+```
 
 ## License
 
