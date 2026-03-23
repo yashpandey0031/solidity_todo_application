@@ -18,6 +18,7 @@ contract TodoList {
 
     event TaskAdded(address indexed user, uint256 indexed taskIndex, string text);
     event TaskUpdated(address indexed user, uint256 indexed taskIndex, bool completed);
+    event TaskTextUpdated(address indexed user, uint256 indexed taskIndex, string text);
     event TaskDeleted(address indexed user, uint256 indexed taskIndex);
 
     function addTask(string calldata _text) external {
@@ -58,6 +59,7 @@ contract TodoList {
         }
 
         userTasks[msg.sender][_taskIndex].text = _newText;
+        emit TaskTextUpdated(msg.sender, _taskIndex, _newText);
     }
 
     function deleteTask(uint256 _taskIndex) external {
