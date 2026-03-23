@@ -39,7 +39,10 @@ async function main() {
   await toggleTx.wait();
   console.log("toggleTaskComplete tx:", toggleTx.hash);
 
-  const updateTextTx = await todoList.updateTaskText(1, "Practice Solidity (events + tests)");
+  const updateTextTx = await todoList.updateTaskText(
+    1,
+    "Practice Solidity (events + tests)",
+  );
   await updateTextTx.wait();
   console.log("updateTaskText tx:", updateTextTx.hash);
   await printTasks(todoList, "After toggle + update");

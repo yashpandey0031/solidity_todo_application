@@ -113,7 +113,15 @@ describe("TodoList", function () {
     const longText = "a".repeat(281);
 
     await todoList.addTask("Task");
-    await expectCustomError(todoList.updateTaskText(0, ""), todoList, "EmptyTaskText");
-    await expectCustomError(todoList.updateTaskText(0, longText), todoList, "TaskTextTooLong");
+    await expectCustomError(
+      todoList.updateTaskText(0, ""),
+      todoList,
+      "EmptyTaskText",
+    );
+    await expectCustomError(
+      todoList.updateTaskText(0, longText),
+      todoList,
+      "TaskTextTooLong",
+    );
   });
 });
