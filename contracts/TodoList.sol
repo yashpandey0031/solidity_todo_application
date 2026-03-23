@@ -2,8 +2,11 @@
 pragma solidity ^0.8.24;
 
 contract TodoList {
+    uint256 public constant MAX_TASK_TEXT_LENGTH = 280;
+
     error EmptyTaskText();
     error InvalidTaskIndex();
+    error TaskTextTooLong();
 
     struct Task {
         string text;
@@ -20,6 +23,10 @@ contract TodoList {
     function addTask(string calldata _text) external {
         if (bytes(_text).length == 0) {
             revert EmptyTaskText();
+        }
+        // Keep task payloads bounded so storage writes stay predictable.
+        if (bytes(_text).length > MAX_TASK_TEXT_LENGTH) {
+            revert TaskTextTooLong();
         }
 
         userTasks[msg.sender].push(Task({text: _text, completed: false}));
